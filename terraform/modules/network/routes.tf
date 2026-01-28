@@ -1,3 +1,27 @@
+# ==============================================================================
+# ROUTING MODULE (routes.tf)
+# ==============================================================================
+#
+# This module defines all routing components for the VPC:
+#
+# - Internet Gateway (IGW) for public internet access
+# - Public route table for public subnets
+# - Private route tables for private subnets (one per AZ)
+# - Elastic IPs for NAT Gateways
+# - NAT Gateways (one per AZ) for controlled outbound access
+#
+# Architectural goals:
+# - Clear separation between public and private networking layers
+# - Multi-AZ fault isolation (each AZ has its own NAT and route table)
+# - No direct internet access from private subnets
+# - Production-grade, readable, and auditable routing design
+#
+# This module does NOT associate route tables with subnets.
+# Associations are handled explicitly to keep responsibilities clear.
+#
+# ==============================================================================
+
+
 # Internet Gateway is the entry/exit point between the VPC and the public internet.
 #
 # Architectural role:
