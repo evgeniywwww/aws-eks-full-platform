@@ -56,7 +56,7 @@ variable "vpc_cidr" {
   }
 }
 
-# Public subnet CIDR blocks per environment.
+# Subnets CIDR blocks per environment.
 #
 # Order matters:
 # - CIDR blocks must align with availability zones.
@@ -69,6 +69,16 @@ variable "vpc_cidr_public_subnets_blocks" {
   default = {
     dev  = ["10.0.1.0/24"]
     prod = ["10.1.1.0/24", "10.1.2.0/24"]
+  }
+}
+
+variable "vpc_cidr_private_subnets_blocks" {
+  type        = map(list(string))
+  description = "VPC CIDR Blocks Private per environment"
+
+  default = {
+    dev  = ["10.10.1.0/24"]
+    prod = ["10.11.1.0/24", "10.11.2.0/24"]
   }
 }
 

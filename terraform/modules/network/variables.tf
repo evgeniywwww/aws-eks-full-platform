@@ -15,7 +15,7 @@ variable "tags" {
   type = map(string)
 }
 
-# List of CIDR blocks for public subnets.
+# List of CIDR blocks for subnets.
 #
 # The order of this list MUST match the order of availability zones.
 #
@@ -26,6 +26,11 @@ variable "tags" {
 variable "public_subnet_cidr" {
   type        = list(string)
   description = "CIDR block for public subnet"
+}
+
+variable "private_subnet_cidr" {
+  type        = list(string)
+  description = "CIDR block for private subnet"
 }
 
 # Number of availability zones to use.

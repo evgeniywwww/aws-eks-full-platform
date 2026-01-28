@@ -53,4 +53,9 @@ locals {
     for idx, az in local.azs :
     az => var.public_subnet_cidr[idx]
   }
+
+  private_subnets = {
+    for idx, az in local.azs :
+    az => var.private_subnet_cidr[idx]
+  }
 }

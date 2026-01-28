@@ -22,7 +22,7 @@ module "network" {
 
   vpc_cidr = var.vpc_cidr[local.env]
 
-  # Public subnet CIDR blocks are also environment-specific.
+  # Subnets CIDR blocks are also environment-specific.
   #
   # Example:
   # - dev  -> ["10.0.1.0/24"]
@@ -33,6 +33,7 @@ module "network" {
   #
 
   public_subnet_cidr = var.vpc_cidr_public_subnets_blocks[local.env]
+  private_subnet_cidr = var.vpc_cidr_private_subnets_blocks[local.env]
 
   # Number of availability zones to use.
   #
