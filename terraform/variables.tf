@@ -37,7 +37,7 @@ variable "common_tags" {
 }
 
 # ------------------------------------------------------------------------------
-# ENVIRONMENT-SPECIFIC CONFIGURATION
+# NETWORK CONFIGURATION
 # ------------------------------------------------------------------------------
 
 # VPC CIDR blocks per environment.
@@ -96,5 +96,36 @@ variable "az_count" {
   default = {
     dev  = 1
     prod = 2
+  }
+}
+
+# ------------------------------------------------------------------------------
+# SECURITY CONFIGURATION
+# ------------------------------------------------------------------------------
+
+variable "iam_roles" {
+  description = "Map of IAM roles with principals and attached policies"
+  type        = map(object({
+    principal = string
+    policies  = list(string)
+  }))
+
+  default = {
+    eks-cluster-role = {
+      principal = "eks.amazonaws.com"
+      policies = [
+        "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy",
+        "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+      ]
+    }
+
+    eks-node-role = {
+      principal = "ec2.amazonaws.com"
+      policies = [
+        "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
+        "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
+        "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+      ]
+    }
   }
 }

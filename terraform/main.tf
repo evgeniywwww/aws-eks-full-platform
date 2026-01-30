@@ -54,3 +54,9 @@ module "network" {
 
   tags     = local.tags
 }
+
+module "security" {
+  source = "./modules/security"
+  iam_roles = var.iam_roles
+  tags   = local.tags
+}
