@@ -103,6 +103,48 @@ variable "az_count" {
 # SECURITY CONFIGURATION
 # ------------------------------------------------------------------------------
 
+# IAM roles definition for the platform.
+#
+# This variable describes ALL IAM roles required by the platform
+# and their security boundaries.
+#
+# Structure:
+# - map key   → IAM role name (used as the actual AWS IAM Role name)
+# - principal → AWS service allowed to initiate AssumeRole (trust policy)
+# - policies  → List of AWS managed policy ARNs attached to the role
+#
+# Important clarification about `principal`:
+#
+# The value `eks.amazonaws.com` may appear in multiple roles.
+# This does NOT mean that all these roles are used by the same component.
+#
+# In AWS IAM, the principal defines *which AWS service is allowed
+# to initiate the AssumeRole call*, not the exact runtime identity.
+#
+# The actual identity assuming the role depends on the context:
+# - EKS control plane (managed by AWS)
+# - EC2 worker nodes
+# - Kubernetes pods using IRSA (OIDC + ServiceAccount)
+#
+# Even if the principal is the same, roles are assumed in different
+# contexts and represent different security boundaries.
+#
+# Design principles:
+# - One role = one responsibility (identity)
+# - Roles are defined declaratively in a single place
+# - Policies are grouped per role, not duplicated
+# - Least privilege is enforced by role separation
+#
+# Implementation notes:
+# - Each policy in the list results in a separate policy attachment
+# - Order of policies does NOT matter
+# - Roles and role-policy relations are normalized in locals
+#   before resource creation
+#
+# This structure is intentionally IRSA-ready and production-oriented.
+#
+
+
 variable "iam_roles" {
   description = "Map of IAM roles with principals and attached policies"
   type        = map(object({
@@ -125,6 +167,35 @@ variable "iam_roles" {
         "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
         "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
         "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+      ]
+    }
+
+    eks-ebs-csi-role = {
+      principal = "eks.amazonaws.com"
+      policies = [
+        "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+      ]
+    }
+
+    eks-lb-controller-role = {
+      principal = "eks.amazonaws.com"
+      policies = [
+        "arn:aws:iam::aws:policy/AWSLoadBalancerControllerIAMPolicy"
+      ]
+    }
+
+    eks-secrets-access-role = {
+      principal = "eks.amazonaws.com"
+      policies = [
+        "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
+        "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+      ]
+    }
+
+    eks-ai-data-role = {
+      principal = "eks.amazonaws.com"
+      policies = [
+        "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
       ]
     }
   }
