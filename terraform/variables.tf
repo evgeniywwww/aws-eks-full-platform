@@ -200,3 +200,73 @@ variable "iam_roles" {
     }
   }
 }
+
+# ------------------------------------------------------------------------------
+# EKS CONFIGURATION (CONTROL PLANE POLICY)
+# ------------------------------------------------------------------------------
+
+# This section defines environment-aware policy for the EKS control plane.
+#
+# Architectural principle:
+# - Root module defines WHAT should be provisioned per environment.
+# - EKS module defines HOW the control plane is created.
+#
+# These variables do not create infrastructure directly.
+# They define environment-level intent (dev / prod),
+# which is resolved in root using terraform.workspace
+# and passed to the EKS module as concrete values.
+#
+# Design goals:
+# - Environment isolation
+# - Deterministic cluster naming
+# - Explicit Kubernetes version management
+# - Controlled API endpoint exposure
+#
+# All variables follow the pattern:
+#   map(environment → value)
+#
+# This ensures:
+# - No workspace logic inside modules
+# - Centralized policy control
+# - Predictable platform behavior
+#
+
+variable "cluster_name" {
+  description = "EKS cluster name per environment"
+  type        = map(string)
+
+  default = {
+    dev  = "platform-dev"
+    prod = "platform-prod"
+  }
+}
+
+variable "eks_version" {
+  description = "EKS version per environment"
+  type        = map(string)
+
+  default = {
+    dev  = "1.31"
+    prod = "1.31"
+  }
+}
+
+variable "eks_endpoint_private_access" {
+  type        = map(bool)
+  description = "Endpoint private access"
+
+  default = {
+    dev  = false
+    prod = true
+  }
+}
+
+variable "eks_endpoint_public_access" {
+  type        = map(bool)
+  description = "Endpoint public access"
+
+  default = {
+    dev  = true
+    prod = false
+  }
+}
